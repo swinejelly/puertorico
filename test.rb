@@ -89,11 +89,36 @@ class StateTest < MiniTest::Unit::TestCase
     assert @state3.terminal?
   end
 
-  #def test_act
-  #  # Player 0 loads all of two coffee onto ship 0, which is empty
-  #  new_state2 = @state2.act({:type => :coffee, :ship => 0, :amount => 2})
-  #  assert_equal @players2[1], new_state2.current_player
-  #  assert_equal Player.new("Scott", 3, 0, 0, 1, 0), new_state2.players[0]
-  #  assert_equal 1, new_state2.current_ix
-  #end
+  def test_act
+    # Player 0 loads all of two coffee onto ship 0, which is empty
+    new_state2 = @state2.act({:type => :coffee, :ship => 0, :amount => 2})
+    assert_equal new_state2.players[1], new_state2.current_player
+    # should have 2 less coffee, 2 more VP
+    assert_equal Player.new("Scott", 3, 0, 0, 1, 0, 2), new_state2.players[0]
+    assert_equal Ship.new(4,2,:coffee), new_state2.ships[0]
+
+    # Player 1 loads 5 out of 6 sugar onto ship 0, filling it
+    new_state3 = new_state2.act({:type => :sugar, :ship => 1, :amount => 5})
+    assert_equal new_state3.players[2], new_state3.current_player
+    assert_equal Player.new("Chase", 0, 0, 1, 2, 2, 5), new_state3.players[1]
+    assert_equal Ship.new(5,5,:sugar), new_state3.ships[1]
+
+    # Player 2 loads 4 out of 8 corn onto ship 2, filling it
+    new_state4 = new_state3.act({:type => :corn, :ship => 2, :amount => 4})
+    assert_equal new_state4.players[0], new_state4.current_player
+    assert_equal Player.new("Brian", 4, 4, 0, 0, 0, 4), new_state4.players[2]
+    assert_equal Ship.new(6,6,:corn), new_state4.ships[2]
+
+    # Player 0 has no shippable commodities
+    assert_empty new_state4.get_actions
+    new_state5 = new_state4.act :none
+
+    # Player 1 loads 2 out of 2 coffee onto ship 0, filling it and ending the round
+    new_state6 = new_state5.act({:type => :coffee, :ship => 0, :amount => 2})
+    assert_equal new_state6.players[2], new_state6.current_player
+    assert_equal Player.new("Chase", 0, 0, 1, 2, 0, 7), new_state6.players[1]
+    assert_equal Ship.new(4,4,:coffee), new_state6.ships[0]
+
+    assert new_state6.terminal?
+  end
 end

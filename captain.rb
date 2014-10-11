@@ -72,7 +72,14 @@ class State
   # as possible onto the given ship and it is the next players turn.
   def act(action)
     nextState = Marshal.load(Marshal.dump(self))
-    nextState.current_player
+    unless action == :none
+      #remove items from player and give VP
+      nextState.current_player[action[:type]] -= action[:amount]
+      nextState.current_player[:vp] += action[:amount]
+      #add items to ship, change type
+      nextState.ships[action[:ship]][:load] += action[:amount]
+      nextState.ships[action[:ship]][:type] = action[:type]
+    end
     nextState.current_ix = (nextState.current_ix + 1) % @players.size
     return nextState
   end
