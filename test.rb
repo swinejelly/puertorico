@@ -31,15 +31,9 @@ class StateTest < MiniTest::Unit::TestCase
     assert !(chase.has :harbors)
   end
 
-  def test_how_many
-    chase = @players2[1]
-    assert_equal (chase.how_many :sugar), 6
-    assert_equal (chase.how_many :vp), 0
-  end
-
   def test_current_player
     assert_equal @players[0], @state.current_player
-    
+
     state2 = @state.act :none
     assert_equal @players[1], state2.current_player
     state3 = state2.act :none
@@ -94,4 +88,12 @@ class StateTest < MiniTest::Unit::TestCase
     assert !@state2.terminal?
     assert @state3.terminal?
   end
+
+  #def test_act
+  #  # Player 0 loads all of two coffee onto ship 0, which is empty
+  #  new_state2 = @state2.act({:type => :coffee, :ship => 0, :amount => 2})
+  #  assert_equal @players2[1], new_state2.current_player
+  #  assert_equal Player.new("Scott", 3, 0, 0, 1, 0), new_state2.players[0]
+  #  assert_equal 1, new_state2.current_ix
+  #end
 end
