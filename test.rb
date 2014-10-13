@@ -2,7 +2,7 @@ require './captain'
 require './minimax'
 require 'minitest/autorun'
 
-class StateTest < MiniTest::Unit::TestCase
+class StateTest < MiniTest::Test
   def setup
     @players = [Player.new("Scott"), Player.new("Hudson"), Player.new("Chase")]
     @ships = [Ship.new(4), Ship.new(5), Ship.new(6)]
@@ -21,7 +21,7 @@ class StateTest < MiniTest::Unit::TestCase
     @players4 = [Player.new("Scott",   0, 3, 1, 0, 2),
                  Player.new("Travis",  2, 0, 0, 3, 0),
                  Player.new("Moffitt", 5, 0, 0, 0, 4),
-                 Player.new("Swan",    2, 3, 2, 1, 1,),
+                 Player.new("Swan",    2, 3, 2, 1, 1),
                  Player.new("Joshua",  0, 2, 4, 0, 0)]
     @ships4 = [Ship.new(6), Ship.new(7), Ship.new(8)]
     @state4 = State.new(@players4, @ships4)
@@ -150,6 +150,7 @@ class StateTest < MiniTest::Unit::TestCase
              {:type=>:corn, :ship=>2, :player=>1, :amount=>2},
              {:type=>:tobacco, :ship=>1, :player=>3, :amount=>1},
              {:type=>:corn, :ship=>2, :player=>3, :amount=>1}]
-    expected4 = [3, 5, 5, 5, 0]
+    expected4 = [[3, 5, 5, 5, 0], moves4]
+    assert_equal expected4, (minimax @state4)
   end
 end
