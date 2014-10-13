@@ -26,7 +26,7 @@ class Container
   end
 
   attr_accessor :hash
-  def_delegators :@hash, :[], :[]=
+  def_delegators :@hash, :[], :[]=, :to_s
 end
 
 class Player < Container
@@ -94,11 +94,13 @@ class State
         types.map do |g|
           {:type => g,
            :ship => ship_ix,
+           :player => current_player_ix,
            :amount => [player[g], ship[:capacity]].min}
         end
       elsif ship[:load] < ship[:capacity] && (player.has ship[:type])
         [{:type => ship[:type],
           :ship => ship_ix,
+          :player => current_player_ix,
           :amount => [player[ship[:type]], ship[:capacity]-ship[:load]].min}]
       else
         []
@@ -107,11 +109,22 @@ class State
   end
   # Whether any actions can be made at this point or not
   def terminal?
-    (0..@players.length-1).any? {|ix| get_actions(ix).empty?}
+    (0..@players.length-1).all? {|ix| get_actions(ix).empty?}
   end
 
   def ==(other)
     @players == other.players && @ships == other.ships && @current_ix == other.current_ix
+  end
+
+  def utility
+    @players.map {|p| p[:vp]}
+  end
+
+  def to_s
+    s = ""
+    @players.each{|p| s += p.to_s + "\n"}
+    @ships.each{|ship| s += ship.to_s + "\n"}
+    return s
   end
 
   attr_reader :players, :ships

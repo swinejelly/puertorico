@@ -1,4 +1,5 @@
 require './captain'
+require './minimax'
 require 'minitest/autorun'
 
 class StateTest < MiniTest::Unit::TestCase
@@ -16,6 +17,14 @@ class StateTest < MiniTest::Unit::TestCase
     @ships3 = [Ship.new(4,4,:corn), Ship.new(5,5, :tobacco), Ship.new(6,6,:indigo)]
     @state3 = State.new(@players2, @ships3)
 
+    # more complicated 5 player game
+    @players4 = [Player.new("Scott",   0, 3, 1, 0, 2),
+                 Player.new("Travis",  2, 0, 0, 3, 0),
+                 Player.new("Moffitt", 5, 0, 0, 0, 4),
+                 Player.new("Swan",    2, 3, 2, 1, 1,),
+                 Player.new("Joshua",  0, 2, 4, 0, 0)]
+    @ships4 = [Ship.new(6), Ship.new(7), Ship.new(8)]
+    @state4 = State.new(@players4, @ships4)
   end
 
   def test_has
@@ -50,22 +59,22 @@ class StateTest < MiniTest::Unit::TestCase
   end
 
   def test_get_actions
-    expected0 = [{:type => :coffee,  :ship => 0, :amount => 2},
-                 {:type => :coffee,  :ship => 1, :amount => 2},
-                 {:type => :tobacco, :ship => 0, :amount => 1},
-                 {:type => :tobacco, :ship => 1, :amount => 1},
-                 {:type => :corn,    :ship => 2, :amount => 3}]
+    expected0 = [{:type => :coffee,  :ship => 0, :player => 0, :amount => 2},
+                 {:type => :coffee,  :ship => 1, :player => 0, :amount => 2},
+                 {:type => :tobacco, :ship => 0, :player => 0, :amount => 1},
+                 {:type => :tobacco, :ship => 1, :player => 0, :amount => 1},
+                 {:type => :corn,    :ship => 2, :player => 0, :amount => 3}]
 
-    expected1 = [{:type => :sugar, :ship => 0, :amount => 4},
-                 {:type => :sugar, :ship => 1, :amount => 5},
-                 {:type => :tobacco, :ship => 0, :amount => 2},
-                 {:type => :tobacco, :ship => 1, :amount => 2},
-                 {:type => :coffee, :ship => 0, :amount => 2},
-                 {:type => :coffee, :ship => 1, :amount => 2}]
+    expected1 = [{:type => :sugar,   :ship => 0, :player => 1, :amount => 4},
+                 {:type => :sugar,   :ship => 1, :player => 1, :amount => 5},
+                 {:type => :tobacco, :ship => 0, :player => 1, :amount => 2},
+                 {:type => :tobacco, :ship => 1, :player => 1, :amount => 2},
+                 {:type => :coffee,  :ship => 0, :player => 1, :amount => 2},
+                 {:type => :coffee,  :ship => 1, :player => 1, :amount => 2}]
 
-    expected2 = [{:type => :indigo, :ship => 0, :amount => 4},
-                 {:type => :indigo, :ship => 1, :amount => 4},
-                 {:type => :corn, :ship => 2, :amount => 4}]
+    expected2 = [{:type => :indigo, :ship => 0, :player => 2, :amount => 4},
+                 {:type => :indigo, :ship => 1, :player => 2, :amount => 4},
+                 {:type => :corn,   :ship => 2, :player => 2, :amount => 4}]
 
     actual0 = @state2.get_actions(0)
     actual1 = @state2.get_actions(1)
@@ -120,5 +129,27 @@ class StateTest < MiniTest::Unit::TestCase
     assert_equal Ship.new(4,4,:coffee), new_state6.ships[0]
 
     assert new_state6.terminal?
+
+    assert_equal [2, 7, 4], new_state6.utility
+  end
+  
+
+  #Just a basic benchmark for correctness
+  def test_minimax
+    moves = [{:type => :corn,   :ship => 2, :player => 0, :amount => 3},
+             {:type => :sugar,  :ship => 1, :player => 1, :amount => 5},
+             {:type => :indigo, :ship => 0, :player => 2, :amount => 4},
+             {:type => :corn,   :ship => 2, :player => 2, :amount => 1}]
+    expected = [[3,5,5], moves]
+    assert_equal expected, (minimax @state2)
+
+    moves4 = [{:type=>:indigo, :ship=>0, :player=>0, :amount=>3},
+             {:type=>:tobacco, :ship=>1, :player=>1, :amount=>3},
+             {:type=>:corn, :ship=>2, :player=>2, :amount=>5},
+             {:type=>:indigo, :ship=>0, :player=>3, :amount=>3},
+             {:type=>:corn, :ship=>2, :player=>1, :amount=>2},
+             {:type=>:tobacco, :ship=>1, :player=>3, :amount=>1},
+             {:type=>:corn, :ship=>2, :player=>3, :amount=>1}]
+    expected4 = [3, 5, 5, 5, 0]
   end
 end
