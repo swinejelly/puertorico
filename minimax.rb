@@ -1,13 +1,13 @@
 require './captain'
 
-def minimax(state)
+def minimax(state, mode=:points)
   if state.terminal?
-    return [state.utility, []]
+    return [state.utility(mode), []]
   else
     actions = state.get_actions
     if !actions.empty?
       results = actions.map do |a|
-        r = minimax(state.act a)
+        r = minimax(state.act(a), mode)
         # insert the action at the beginning
         r[1] = [a] + r[1]
         r
@@ -15,7 +15,7 @@ def minimax(state)
       best = results.max_by {|r| r[0][state.current_ix]}
       return best
     else
-      return minimax(state.act :none)
+      return minimax(state.act(:none), mode)
     end
   end
 end

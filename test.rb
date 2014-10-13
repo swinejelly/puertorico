@@ -53,6 +53,13 @@ class StateTest < MiniTest::Test
     # he won't be able to ship 1 of his indigo
     @ships_harbor_mm = [Ship.new(4), Ship.new(5, 1, :sugar), Ship.new(6, 6, :tobacco)]
     @state_harbor_mm = State.new(@players_harbor_mm, @ships_harbor_mm)
+
+    # When using :delta it evaluates utility on how far behind the winning player they are
+    @players_mm_delta = [Player.new("Chase", 0, 1, 0, 2, 0),
+                         Player.new("Scott", 0, 0, 1, 0, 2),
+                         Player.new("Brian", 0, 0, 0, 3, 3)]
+    @ships_mm_delta = [Ship.new(4, 4, :corn), Ship.new(5), Ship.new(6)]
+    @state_mm_delta = State.new(@players_mm_delta, @ships_mm_delta)
   end
 
   def test_has
@@ -224,5 +231,12 @@ class StateTest < MiniTest::Test
     # Verify that Chase takes the optimal strategy
     result = minimax @state_harbor_mm
     assert_equal [4,3,3], result[0], result
+  end
+
+  def test_minimax_delta
+    # Verify that the first two players prevent the third from shipping
+    # loads of goods even if it means they get less VP
+    result = minimax @state_mm_delta, :delta
+    assert_equal [0,0,-1], result[0], result
   end
 end

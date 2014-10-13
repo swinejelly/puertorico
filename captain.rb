@@ -130,8 +130,13 @@ class State
     @players == other.players && @ships == other.ships && @current_ix == other.current_ix
   end
 
-  def utility
-    @players.map {|p| p[:vp]}
+  def utility(mode=:points)
+    if mode == :points
+      @players.map {|p| p[:vp]}
+    elsif mode == :delta
+      max = @players.max {|p| p[:vp]}[:vp]
+      @players.map {|p| p[:vp] - max}
+    end
   end
 
   def to_s
