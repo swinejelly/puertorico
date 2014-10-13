@@ -75,10 +75,14 @@ class State
     unless action == :none
       #remove items from player and give VP
       nextState.current_player[action[:type]] -= action[:amount]
-      nextState.current_player[:vp] += action[:amount]
+      nextState.current_player[:vp] += action[:amount] + nextState.current_player[:harbors]
       #add items to ship, change type
-      nextState.ships[action[:ship]][:load] += action[:amount]
-      nextState.ships[action[:ship]][:type] = action[:type]
+      if action[:ship] != :wharfs
+        nextState.ships[action[:ship]][:load] += action[:amount]
+        nextState.ships[action[:ship]][:type] = action[:type]
+      else
+        nextState.players[nextState.current_ix][:wharfs] -= 1
+      end
     end
     nextState.current_ix = (nextState.current_ix + 1) % @players.size
     return nextState
@@ -88,7 +92,7 @@ class State
   def get_actions(current_player_ix=@current_ix)
     player = @players[current_player_ix]
     free_types = ($goods - @ships.map {|s| s[:type]})
-    @ships.each_with_index.flat_map do |ship,ship_ix|
+    actions = @ships.each_with_index.flat_map do |ship,ship_ix|
       if ship[:type] == :none
         types = free_types.select {|g| player.has g}
         types.map do |g|
@@ -106,6 +110,16 @@ class State
         []
       end
     end
+    if player[:wharfs] > 0
+      wharf_actions = $goods.select {|g| player.has g}.map do |g|
+        {:type => g,
+         :ship => :wharfs,
+         :player => current_player_ix,
+         :amount => player[g]}
+      end
+      actions = wharf_actions + actions
+    end
+    actions
   end
   # Whether any actions can be made at this point or not
   def terminal?
