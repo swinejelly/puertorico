@@ -60,6 +60,15 @@ class StateTest < MiniTest::Test
                          Player.new("Brian", 0, 0, 0, 3, 3)]
     @ships_mm_delta = [Ship.new(4, 4, :corn), Ship.new(5), Ship.new(6)]
     @state_mm_delta = State.new(@players_mm_delta, @ships_mm_delta)
+
+    # Came up with this test case by grabbing goods out of a bag at random.
+    # Revealed that minimax _, :delta wasn't actually picking the player
+    # with the most VP.
+    @players_mm_delta2 = [Player.new("Chase", 1, 0, 4, 2, 0),
+                          Player.new("Scott", 2, 3, 0, 1, 3),
+                          Player.new("Brian", 0, 1, 3, 2, 2)]
+    @ships_mm_delta2 = [Ship.new(4), Ship.new(5), Ship.new(6)]
+    @state_mm_delta2 = State.new(@players_mm_delta2, @ships_mm_delta2)
   end
 
   def test_has
@@ -238,5 +247,8 @@ class StateTest < MiniTest::Test
     # loads of goods even if it means they get less VP
     result = minimax @state_mm_delta, :delta
     assert_equal [0,0,-1], result[0], result
+
+    result2 = minimax @state_mm_delta2, :delta
+    assert_equal [0, 0, -3], result2[0]
   end
 end

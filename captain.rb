@@ -134,7 +134,7 @@ class State
     if mode == :points
       @players.map {|p| p[:vp]}
     elsif mode == :delta
-      max = @players.max {|p| p[:vp]}[:vp]
+      max = @players.max_by {|p| p[:vp]}[:vp]
       @players.map {|p| p[:vp] - max}
     end
   end
