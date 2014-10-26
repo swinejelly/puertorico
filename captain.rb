@@ -141,6 +141,8 @@ class State
 
   def to_s
     s = ""
+    max_length = @players.map{|p| p[:name].length}.max
+    s += @players.map{|p| p[:name].ljust(max_length)}.join(max_length)
     @players.each{|p| s += p.to_s + "\n"}
     @ships.each{|ship| s += ship.to_s + "\n"}
     return s
